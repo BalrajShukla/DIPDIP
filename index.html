@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIP-DIP Scale - Live Assessment</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #f0f4f8; 
+            color: #333; 
+        }
+        .container { 
+            background-color: #fff; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08); 
+        }
+        h2 { 
+            text-align: center; 
+            color: #2c3e50; 
+            margin-bottom: 25px;
+            line-height: 1.3;
+        }
+        
+        /* Dashboard & Gauge Styles */
+        .dashboard { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-bottom: 35px; 
+            padding: 30px 20px; 
+            background: #fafbfc; 
+            border-radius: 12px; 
+            border: 1px solid #e1e4e8; 
+        }
+        .gauge-container {
+            width: 240px;
+            height: 120px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .gauge-bg {
+            width: 240px;
+            height: 240px;
+            box-sizing: border-box;
+            border-radius: 50%;
+            border: 30px solid #e9ecef;
+            position: absolute;
+            top: 0; left: 0;
+            border-bottom-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(45deg);
+        }
+        .gauge-fill {
+            width: 240px;
+            height: 240px;
+            box-sizing: border-box;
+            border-radius: 50%;
+            border: 30px solid #28a745; /* Default Green for 0 */
+            position: absolute;
+            top: 0; left: 0;
+            border-bottom-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(-135deg); /* Starts at 0 score */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.6s;
+        }
+        .score-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding-bottom: 5px;
+        }
+        .score-display { 
+            font-size: 42px; 
+            font-weight: bold; 
+            color: #2c3e50; 
+            line-height: 1; 
+        }
+        .score-max { 
+            font-size: 14px; 
+            color: #7f8c8d; 
+            margin-top: 4px;
+        }
+        .inference-badge { 
+            margin-top: 20px; 
+            padding: 8px 20px; 
+            border-radius: 20px; 
+            font-weight: bold; 
+            font-size: 16px; 
+            color: white; 
+            background-color: #28a745; 
+            transition: background-color 0.6s, color 0.6s;
+        }
+        .inference-text { 
+            margin-top: 15px; 
+            text-align: center; 
+            font-size: 15px; 
+            color: #555; 
+            max-width: 500px;
+        }
+
+        /* Form Styles */
+        .question { 
+            margin-bottom: 20px; 
+            padding-bottom: 15px; 
+            border-bottom: 1px solid #f1f1f1; 
+        }
+        .question label { 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            color: #444; 
+            line-height: 1.4;
+        }
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #e1e4e8; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            transition: border-color 0.3s; 
+            appearance: none; 
+            background: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') no-repeat right 10px center; 
+            background-color: white; 
+        }
+        select:focus { outline: none; border-color: #0366d6; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Digital Interface Patterning for Detecting Illegitimate Publications (DIP-DIP)</h2>
+    
+    <div class="dashboard">
+        <div class="gauge-container">
+            <div class="gauge-bg"></div>
+            <div class="gauge-fill" id="gaugeFill"></div>
+            <div class="score-container">
+                <div class="score-display" id="scoreDisplay">0</div>
+                <div class="score-max">out of 6</div>
+            </div>
+        </div>
+        <div class="inference-badge" id="inferenceBadge">Low Risk</div>
+        <div class="inference-text" id="inferenceText">Minimal predatory traits detected on the digital interface.</div>
+    </div>
+
+    <form id="dipdipForm">
+        </form>
+</div>
+
+<script>
+    const questions = [
+        "1. Promises of rapid publication on spam mails or journal website.",
+        "2. Unprofessional layout of website (pixelated graphics, flashy, scrolling content).",
+        "3. Outdated or lack of manuscript handling system.",
+        "4. Flawed website design (broken links, difficult navigation).",
+        "5. Publication costs (low, high, or free) mentioned on home page of the journal.",
+        "6. Non-professional contact email (personal email ids like @gmail.com, @outlook.com, @yahoo.com, etc)."
+    ];
+
+    const form = document.getElementById('dipdipForm');
+    
+    // Build the questions
+    questions.forEach((q, index) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `
+            <label>${q}</label>
+            <select class="score-dropdown" onchange="updateScore()">
+                <option value="0" selected>NO (0 points)</option>
+                <option value="1">YES (1 point)</option>
+            </select>
+        `;
+        form.appendChild(div);
+    });
+
+    function updateScore() {
+        const dropdowns = document.querySelectorAll('.score-dropdown');
+        let totalScore = 0;
+        
+        dropdowns.forEach(dropdown => {
+            totalScore += parseInt(dropdown.value);
+        });
+
+        // 1. Update the number text
+        document.getElementById('scoreDisplay').innerText = totalScore;
+
+        // 2. Update Gauge rotation (Min angle: -135deg, Max angle: 45deg)
+        const degrees = -135 + (totalScore / 6) * 180;
+        const gaugeFill = document.getElementById('gaugeFill');
+        gaugeFill.style.transform = `rotate(${degrees}deg)`;
+
+        // 3. Update Colors and Text based on Cutoffs
+        const badge = document.getElementById('inferenceBadge');
+        const text = document.getElementById('inferenceText');
+
+        if (totalScore <= 1) {
+            gaugeFill.style.borderColor = '#28a745 transparent transparent #28a745'; // Green
+            badge.style.backgroundColor = '#28a745';
+            badge.style.color = 'white';
+            badge.innerText = "Low Risk";
+            text.innerText = "Minimal predatory traits detected on the digital interface. The journal is likely legitimate.";
+        } else if (totalScore >= 2 && totalScore <= 3) {
+            gaugeFill.style.borderColor = '#ffc107 transparent transparent #ffc107'; // Yellow
+            badge.style.backgroundColor = '#ffc107';
+            badge.style.color = '#333'; // Darker text for readability
+            badge.innerText = "Moderate Risk";
+            text.innerText = "Several questionable traits present. Proceed with caution and investigate the journal further.";
+        } else {
+            gaugeFill.style.borderColor = '#dc3545 transparent transparent #dc3545'; // Red
+            badge.style.backgroundColor = '#dc3545';
+            badge.style.color = 'white';
+            badge.innerText = "High Risk";
+            text.innerText = "Strong likelihood of being an illegitimate/predatory publication based on digital interface cues.";
+        }
+    }
+
+    // Initialize the live dashboard on first load
+    updateScore();
+</script>
+
+</body>
+</html>
