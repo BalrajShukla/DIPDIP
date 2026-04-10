@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DIP-DIP Scale - Dark Mode Assessment</title>
+    <title>DIP-DIP Scale - Mobile Friendly</title>
     <style>
         /* Dark Theme Variables */
         :root {
@@ -41,6 +41,7 @@
             margin-bottom: 5px;
             font-weight: 600;
             letter-spacing: 0.5px;
+            line-height: 1.3;
         }
         
         .reference {
@@ -111,7 +112,7 @@
             color: #cccccc; max-width: 550px; line-height: 1.5;
         }
 
-        /* Toggle Question Layout */
+        /* Toggle Question Layout (Desktop Default) */
         .question { 
             display: flex;
             justify-content: space-between;
@@ -175,16 +176,39 @@
             border-radius: 50%;
         }
         
-        /* When toggled ON (Yes) */
-        input:checked + .slider {
-            background-color: var(--accent-blue);
-        }
-        input:checked + .slider:before {
-            transform: translateX(30px);
-        }
-        
-        /* Make 'YES' text pop when active */
+        input:checked + .slider { background-color: var(--accent-blue); }
+        input:checked + .slider:before { transform: translateX(30px); }
         .yes-active { color: var(--accent-blue); }
+
+        /* =========================================
+           MOBILE RESPONSIVENESS (Media Queries)
+           ========================================= */
+        @media (max-width: 650px) {
+            body { padding: 10px; }
+            .container { padding: 25px 15px; }
+            
+            h2 { font-size: 20px; }
+            .inference-text { font-size: 14px; }
+            
+            /* Stack the question text and the toggle switch */
+            .question {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px;
+                gap: 15px;
+            }
+            .question-text {
+                padding-right: 0;
+                font-size: 15px;
+            }
+            /* Align the toggle switch nicely on the bottom row */
+            .toggle-wrapper {
+                width: 100%;
+                justify-content: flex-end;
+                padding-top: 10px;
+                border-top: 1px dashed var(--border-color);
+            }
+        }
     </style>
 </head>
 <body>
@@ -242,7 +266,6 @@
     });
 
     function updateScore(toggledElement) {
-        // Optional: Highlight the "YES" text when checked
         if(toggledElement) {
             const yesText = toggledElement.parentElement.nextElementSibling;
             if(toggledElement.checked) {
@@ -259,15 +282,12 @@
             if (chk.checked) totalScore += 1;
         });
 
-        // 1. Update the number
         document.getElementById('scoreDisplay').innerText = totalScore;
 
-        // 2. Update Gauge rotation
         const degrees = -135 + (totalScore / 6) * 180;
         const gaugeFill = document.getElementById('gaugeFill');
         gaugeFill.style.transform = `rotate(${degrees}deg)`;
 
-        // 3. Update Colors and Text
         const badge = document.getElementById('inferenceBadge');
         const text = document.getElementById('inferenceText');
 
