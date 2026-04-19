@@ -112,7 +112,7 @@
             color: #cccccc; max-width: 550px; line-height: 1.5;
         }
 
-        /* Toggle Question Layout (Desktop Default) */
+        /* Toggle Question Layout */
         .question { 
             display: flex;
             justify-content: space-between;
@@ -180,28 +180,38 @@
         input:checked + .slider:before { transform: translateX(30px); }
         .yes-active { color: var(--accent-blue); }
 
-        /* =========================================
-           MOBILE RESPONSIVENESS (Media Queries)
-           ========================================= */
+        /* Scroll Reminder Styling */
+        .scroll-reminder {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            letter-spacing: 0.5px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        /* Mobile Responsiveness */
         @media (max-width: 650px) {
             body { padding: 10px; }
             .container { padding: 25px 15px; }
-            
             h2 { font-size: 20px; }
             .inference-text { font-size: 14px; }
             
-            /* Stack the question text and the toggle switch */
             .question {
                 flex-direction: column;
                 align-items: flex-start;
                 padding: 15px;
                 gap: 15px;
             }
-            .question-text {
-                padding-right: 0;
-                font-size: 15px;
-            }
-            /* Align the toggle switch nicely on the bottom row */
+            .question-text { padding-right: 0; font-size: 15px; }
+            
             .toggle-wrapper {
                 width: 100%;
                 justify-content: flex-end;
@@ -234,6 +244,10 @@
 
     <form id="dipdipForm">
         </form>
+
+    <div class="scroll-reminder">
+        ↑ Scroll up to view your final score and inference ↑
+    </div>
 </div>
 
 <script>
